@@ -75,6 +75,6 @@ export const logout = (req, res) => {
   });
 };
 
-export const setup2FA = async (req, res) => {};
-export const verify2FA = async (req, res) => {};
-export const reset2FA = async (req, res) => {};
+// export const setup2FA = async (req, res) => {};
+// export const verify2FA = async (req, res) => {};
+// export const reset2FA = async (req, res) => {};

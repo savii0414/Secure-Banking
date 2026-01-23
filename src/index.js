@@ -14,8 +14,10 @@ const app = express();
 
 //Middleware
 const corsOptions = {
-  origin: ["http://localhost:7001"],
+  origin: [process.env.CLIENT_URL],
   credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 app.use(cors(corsOptions));
 app.use(express.json({ limit: "100mb" }));
