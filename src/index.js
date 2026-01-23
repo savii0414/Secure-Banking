@@ -3,14 +3,18 @@ import session from "express-session";
 import passport from "passport";
 import dotenv from "dotenv";
 import cors from "cors";
+import dbConnect from "./config/dbConnect.js";
+import authRoutes from  "./routes/authRoutes.js";
+import "./config/passportConfig.js";
 
 dotenv.config();
+dbConnect();
 
 const app = express();
 
 //Middleware
 const corsOptions = {
-  origin: ["http://localhost:3001"],
+  origin: ["http://localhost:7001"],
   credentials: true,
 };
 app.use(cors(corsOptions));
@@ -30,6 +34,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //Routes
+app.use("/api/auth", authRoutes);
 
 //Listen App
 const PORT = process.env.PORT || 7002;
