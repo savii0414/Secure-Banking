@@ -42,16 +42,16 @@ export const register = async (req, res) => {
       password: hashedPassword,
       email,
       phone,
-      isMfaActive,
+      isMfaActive: false,
       otpHash,
       otpExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
       otpMethod: otpMethod,
       isVerified: false,
-      passwordChangedAt,
-      twoFactorSecret,
+      passwordChangedAt: new Date(),
+      twoFactorSecret: null,
     });
     await newUser.save();
-
+    
     await createLog({
       username,
       action: "register-success",
@@ -210,7 +210,7 @@ export const verifyRegistrationOTP = async (req, res) => {
     user.otpExpiresAt = undefined;
     await user.save();
 
-    res.status(200).json({ message: "User verified successfully" });
+    res.status(200).json({ message: "User verified successfully.. Please Login" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to verify OTP" });
