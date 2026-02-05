@@ -84,8 +84,8 @@ export const verifyRegistrationOTP = async (username, otp) => {
   });
 };
 
-export const forgotPassword = async (email) => {
-  return await api.post("/auth/forgot-password", { email });
+export const forgotPassword = async (username) => {
+  return await api.post("/auth/forgot-password", { username });
 };
 
 export const resetPassword = async (token, newPassword) => {

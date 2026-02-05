@@ -341,9 +341,9 @@ export const reset2FA = async (req, res) => {
 // ------------------ FORGOT PASSWORD ------------------
 export const forgotPassword = async (req, res) => {
   try {
-    const { email } = req.body;
+    const { username } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ username });
 
     const message = "A reset link has been sent to your registered email";
 
@@ -359,7 +359,7 @@ export const forgotPassword = async (req, res) => {
     const resetLink = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
     // Send password reset email using service
-    await sendPasswordResetEmail(email, resetLink, user.username);
+    await sendPasswordResetEmail(user.email, resetLink, user.username);
 
     await createLog({
       userId: user._id,
@@ -399,7 +399,7 @@ export const resetPassword = async (req, res) => {
     ) {
       return res
         .status(400)
-        .json({ message: "This reset link has already been used" });
+        .json({ message: "“If the username exists, This reset link has already been used" });
     }
 
     // Update password
