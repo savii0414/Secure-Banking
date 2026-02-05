@@ -59,10 +59,10 @@ export const verify2FA = async (token) => {
   );
 };
 
-export const reset2FA = async () => {
+export const reset2FA = async (token) => {
   return await api.post(
     "/auth/2fa/reset",
-    {},
+    { token },  
     {
       withCredentials: true,
     },

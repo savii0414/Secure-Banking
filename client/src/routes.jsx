@@ -5,11 +5,12 @@ import HomePage from "./pages/HomePage";
 import SetupAuthenticator from "./pages/SetupAuthenticator";
 import VerifyAuthenticator from "./pages/VerifyAuthenticator";
 import ProtectedRoute from "./components/ProtectedRoute";
-import VerifyOtp from "./components/VerifyOtpForm";
-import VerifyLoginOtpForm from "./components/VerifyLoginOtpForm";
-import ForgotPasswordForm from "./components/ForgotPasswordForm";
-import ResetPasswordForm from "./components/ResetPasswordForm";
+import VerifyOtp from "./pages/VerifyOtp";
+import VerifyLoginOtp from "./pages/VerifyLoginOtp";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
+import ResetAuthenticator from "./pages/ResetAuthenticator";
 
 const router = createBrowserRouter([
   {
@@ -29,17 +30,17 @@ const router = createBrowserRouter([
   },
   {
     path: "/verify-login-otp",
-    element: <VerifyLoginOtpForm />,
+    element: <VerifyLoginOtp />,
     errorElement: <Error />,
   },
   {
     path: "/forgot-password",
-    element: <ForgotPasswordForm />,
+    element: <ForgotPassword />,
     errorElement: <Error />,
   },
   {
     path: "/reset-password/:token",
-    element: <ResetPasswordForm />,
+    element: <ResetPassword />,
     errorElement: <Error />,
   },
   {
@@ -58,6 +59,11 @@ const router = createBrowserRouter([
       {
         path: "/verify-2fa",
         element: <VerifyAuthenticator />,
+        errorElement: <Error />,
+      },
+      {
+        path: "/reset-2fa",
+        element: <ResetAuthenticator />,
         errorElement: <Error />,
       },
     ],
