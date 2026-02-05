@@ -73,7 +73,8 @@ export const verifyLoginOTP = async (username, otp) => {
   return await api.post("/auth/login/verify-otp", {
     username,
     otp,
-  });
+  },
+ { withCredentials: true });
 };
 
 export const verifyRegistrationOTP = async (username, otp) => {

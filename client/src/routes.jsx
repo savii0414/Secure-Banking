@@ -4,10 +4,17 @@ import Error from "./pages/Error";
 import HomePage from "./pages/HomePage";
 import SetupAuthenticator from "./pages/SetupAuthenticator";
 import VerifyAuthenticator from "./pages/VerifyAuthenticator";
-import VerifyOtp from "./components/VerifyOtpForm";
 import ProtectedRoute from "./components/ProtectedRoute";
+import VerifyOtp from "./components/VerifyOtpForm";
+import VerifyLoginOtpForm from "./components/VerifyLoginOtpForm";
+import Dashboard from "./pages/Dashboard";
 
 const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <HomePage />,
+    errorElement: <Error />,
+  },
   {
     path: "/login",
     element: <LoginPage />,
@@ -19,11 +26,16 @@ const router = createBrowserRouter([
     errorElement: <Error />,
   },
   {
+    path: "/verify-login-otp",
+    element: <VerifyLoginOtpForm />,
+    errorElement: <Error />,
+  },
+  {
     element: <ProtectedRoute />,
     children: [
       {
-        path: "/",
-        element: <HomePage />,
+        path: "/dashboard",
+        element: <Dashboard />,
         errorElement: <Error />,
       },
       {

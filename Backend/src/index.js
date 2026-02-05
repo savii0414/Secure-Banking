@@ -14,7 +14,7 @@ const app = express();
 
 //Middleware
 const corsOptions = {
-  origin: [process.env.CLIENT_URL],
+  origin: process.env.CLIENT_URL,
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -24,11 +24,15 @@ app.use(express.json({ limit: "100mb" }));
 app.use(express.urlencoded({ limit: "100mb", extended: true }));
 app.use(
   session({
+    name: "connect.sid",
     secret: process.env.SESSION_SECRET || "SECRETTTTSESSIIIONNN",
     resave: false,
     saveUninitialized: false,
     cookie: {
-        maxAge: 60000*60,
+      maxAge: 1000 * 60 * 60, // 1 hour
+      httpOnly: true,
+      sameSite: "lax",       // REQUIRED for cross-origin
+      secure: false,         // true ONLY in https (prod)
     },
   }),
 );

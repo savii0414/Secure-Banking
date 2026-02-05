@@ -3,7 +3,7 @@ import { register, login } from "../service/authApi";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-const LoginForm = () => {
+const LoginForm = ({ onLoginSuccess }) => {
   const [isRegister, setIsRegister] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -12,9 +12,24 @@ const LoginForm = () => {
   const [otpMethod, setOtpMethod] = useState("email");
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Login logic
+    try {
+      const response = await login(username, password); // call your authApi
+      const data = response.data; 
+
+      // OTP sent
+      toast.success(data.message);
+
+      // Navigate to OTP verification page
+      onLoginSuccess(data);
+
+      // Reset form
+      setUsername("");
+      setPassword("");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Invalid Login Credentials");
+    }
   };
 
   const handleRegister = async (e) => {
