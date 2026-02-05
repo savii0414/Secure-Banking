@@ -1,8 +1,8 @@
 import React from "react";
 import VerifyLoginOtpForm from "../components/VerifyLoginOtpForm";
 
-const VerifyLoginOtpForm = () => {
+const VerifyLoginOtp = () => {
   return <VerifyLoginOtpForm />;
 };
 
-export default VerifyLoginOtpForm;
+export default VerifyLoginOtp;

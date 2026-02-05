@@ -272,12 +272,12 @@ export const setup2FA = async (req, res) => {
     const user = req.user;
     var secret = speakeasy.generateSecret();
     user.twoFactorSecret = secret.base32;
-    user.isMfaActive = true;
     await user.save();
+
     const url = speakeasy.otpauthURL({
       secret: secret.base32,
       label: `${req.user.username}`,
-      issuer: "www.banking.com",
+      issuer: "www.ceylontrust.com",
       encoding: "base32",
     });
     const qrImageUrl = await qrCode.toDataURL(url);
@@ -306,9 +306,14 @@ export const verify2FA = async (req, res) => {
     secret: user.twoFactorSecret,
     encoding: "base32",
     token,
+    window: 1,
   });
 
   if (verified) {
+
+    user.isMfaActive = true;
+    await user.save();
+
     const jwtToken = jwt.sign(
       {
         username: user.username,
@@ -328,15 +333,36 @@ export const verify2FA = async (req, res) => {
 
 export const reset2FA = async (req, res) => {
   try {
+    const { token } = req.body; // OTP from Google Authenticator
     const user = req.user;
+
+    if (!user.isMfaActive || !user.twoFactorSecret) {
+      return res.status(400).json({ message: "MFA not active" });
+    }
+
+    // Verify OTP first
+    const verified = speakeasy.totp.verify({
+      secret: user.twoFactorSecret,
+      encoding: "base32",
+      token,
+      window: 1, // allow +/-1 step
+    });
+
+    if (!verified) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    // Clear secret & deactivate MFA
     user.twoFactorSecret = "";
     user.isMfaActive = false;
     await user.save();
-    res.status(200).json({ message: "OTP reset Succesfully" });
+
+    res.status(200).json({ message: "MFA has been reset successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Error reseting 2FA", message: error });
+    res.status(500).json({ error: "Error resetting 2FA", message: error });
   }
 };
+
 
 // ------------------ FORGOT PASSWORD ------------------
 export const forgotPassword = async (req, res) => {
