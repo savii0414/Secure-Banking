@@ -161,8 +161,7 @@ export const verifyLoginOTP = async (req, res) => {
     // Passport login
     req.login(user, async (err) => {
       if (err) {
-        return next(err);
-        // Pass error to Express error handler
+        return res.status(500).json({ message: "Login failed" });
       }
 
       // security log  — login success
