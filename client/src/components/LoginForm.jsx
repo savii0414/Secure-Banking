@@ -16,7 +16,7 @@ const LoginForm = ({ onLoginSuccess }) => {
     e.preventDefault();
     try {
       const response = await login(username, password); // call your authApi
-      const data = response.data; 
+      const data = response.data;
 
       // OTP sent
       toast.success(data.message);
@@ -177,6 +177,17 @@ const LoginForm = ({ onLoginSuccess }) => {
             </>
           )}
         </div>
+
+        {!isRegister && (
+          <div className="text-right mt-2">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-blue-500 hover:underline"
+            >
+              Forgot password?
+            </Link>
+          </div>
+        )}
 
         {/* Submit button */}
         <button

@@ -7,6 +7,8 @@ import VerifyAuthenticator from "./pages/VerifyAuthenticator";
 import ProtectedRoute from "./components/ProtectedRoute";
 import VerifyOtp from "./components/VerifyOtpForm";
 import VerifyLoginOtpForm from "./components/VerifyLoginOtpForm";
+import ForgotPasswordForm from "./components/ForgotPasswordForm";
+import ResetPasswordForm from "./components/ResetPasswordForm";
 import Dashboard from "./pages/Dashboard";
 
 const router = createBrowserRouter([
@@ -28,6 +30,16 @@ const router = createBrowserRouter([
   {
     path: "/verify-login-otp",
     element: <VerifyLoginOtpForm />,
+    errorElement: <Error />,
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPasswordForm />,
+    errorElement: <Error />,
+  },
+  {
+    path: "/reset-password/:token",
+    element: <ResetPasswordForm />,
     errorElement: <Error />,
   },
   {
