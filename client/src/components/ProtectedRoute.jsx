@@ -3,11 +3,11 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useSession } from "../context/SessionContext";
 
 const ProtectedRoute = () => {
-  const { IsLoggedIn } = useSession(); // get login status from context
+  const { IsLoggedIn } = useSession();
 
   // If not logged in, redirect to login
   if (!IsLoggedIn) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace/>;
   }
 
   // Render the protected child routes

@@ -17,7 +17,7 @@ const ForgotPasswordForm = () => {
         "If the username exists, A reset link has been sent to the registered email"
       );
       setUsername("");
-    } catch (err) {
+    } catch {
       toast.error("Something went wrong");
     } finally {
       setLoading(false);

@@ -10,12 +10,14 @@ const LoginForm = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [otpMethod, setOtpMethod] = useState("email");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      const response = await login(username, password); // call your authApi
+      const response = await login(username, password);
       const data = response.data;
 
       // OTP sent
@@ -34,6 +36,7 @@ const LoginForm = ({ onLoginSuccess }) => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const { data } = await register(
         username,
@@ -92,6 +95,7 @@ const LoginForm = ({ onLoginSuccess }) => {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              disabled={loading}
               className="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               placeholder="Enter your username"
               required
@@ -107,6 +111,7 @@ const LoginForm = ({ onLoginSuccess }) => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
               className="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               placeholder="Enter your password"
               required
@@ -126,6 +131,7 @@ const LoginForm = ({ onLoginSuccess }) => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    disabled={loading}
                     className="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                     placeholder="Enter your email"
                     required
@@ -139,6 +145,7 @@ const LoginForm = ({ onLoginSuccess }) => {
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
+                    disabled={loading}
                     className="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                     placeholder="Enter your phone number"
                     required
@@ -159,6 +166,7 @@ const LoginForm = ({ onLoginSuccess }) => {
                       value="email"
                       checked={otpMethod === "email"}
                       onChange={(e) => setOtpMethod(e.target.value)}
+                      disabled={loading}
                     />
                     Email
                   </label>
@@ -169,6 +177,7 @@ const LoginForm = ({ onLoginSuccess }) => {
                       value="sms"
                       checked={otpMethod === "sms"}
                       onChange={(e) => setOtpMethod(e.target.value)}
+                      disabled={loading}
                     />
                     SMS
                   </label>
@@ -189,12 +198,15 @@ const LoginForm = ({ onLoginSuccess }) => {
           </div>
         )}
 
-        {/* Submit button */}
+        {/* Submit button shows loading */}
         <button
           type="submit"
-          className="mt-10 w-full bg-blue-500 text-white py-4 rounded-xl hover:bg-blue-600 transition text-lg font-medium"
+          disabled={loading}
+          className={`w-full py-4 mt-6 rounded-xl text-white ${
+            loading ? "bg-blue-300 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
+          }`}
         >
-          {isRegister ? "Register" : "Login"}
+          {loading ? "Please wait..." : isRegister ? "Register" : "Login"}
         </button>
 
         {/* Toggle login/register */}
