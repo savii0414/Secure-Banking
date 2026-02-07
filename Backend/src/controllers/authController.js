@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import User from "../models/user.js";
+import PendingUser from "../models/PendingUser.js";
 import speakeasy from "speakeasy";
 import qrCode from "qrcode";
 import jwt from "jsonwebtoken";
@@ -13,57 +14,92 @@ const generateOTP = () =>
   Math.floor(100000 + Math.random() * 900000).toString(); // 6 digits
 
 // ------------------ REGISTER ------------------
-export const register = async (req, res) => {
-  try {
-    const { username, password, email, phone, otpMethod } = req.body;
+// export const register = async (req, res) => {
+//   try {
+//     const { username, password, email, phone, otpMethod } = req.body;
 
-    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
-    if (existingUser) {
-      await createLog({
-        username,
-        action: "register-failed",
-        details: { reason: "User exists" },
-        ip: req.ip,
-        userAgent: req.get("User-Agent"),
-      });
-      return res.status(400).json({ message: "User already exists" });
-    }
+//     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+//     if (existingUser) {
+//       await createLog({
+//         username,
+//         action: "register-failed",
+//         details: { reason: "User exists" },
+//         ip: req.ip,
+//         userAgent: req.get("User-Agent"),
+//       });
+//       return res.status(400).json({ message: "User already exists" });
+//     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const otp = generateOTP();
-    const otpHash = await bcrypt.hash(otp, 10);
+//     const hashedPassword = await bcrypt.hash(password, 10);
+//     const otp = generateOTP();
+//     const otpHash = await bcrypt.hash(otp, 10);
 
-    if (otpMethod === "email") await sendEmailOTP(email, otp);
-    else if (otpMethod === "sms") await sendSMSOTP(phone, otp);
-    else return res.status(400).json({ message: "Invalid OTP method" });
+//     if (otpMethod === "email") await sendEmailOTP(email, otp);
+//     else if (otpMethod === "sms") await sendSMSOTP(phone, otp);
+//     else return res.status(400).json({ message: "Invalid OTP method" });
 
-    const newUser = new User({
-      username,
-      password: hashedPassword,
-      email,
-      phone,
-      isMfaActive: false,
-      otpHash,
-      otpExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
-      otpMethod: otpMethod,
-      isVerified: false,
-      passwordChangedAt: new Date(),
-      twoFactorSecret: null,
-    });
-    await newUser.save();
+//     const newUser = new User({
+//       username,
+//       password: hashedPassword,
+//       email,
+//       phone,
+//       isMfaActive: false,
+//       otpHash,
+//       otpExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
+//       otpMethod: otpMethod,
+//       isVerified: false,
+//       passwordChangedAt: new Date(),
+//       twoFactorSecret: null,
+//     });
+//     await newUser.save();
     
-    await createLog({
-      username,
-      action: "register-success",
-      ip: req.ip,
-      userAgent: req.get("User-Agent"),
-    });
+//     await createLog({
+//       username,
+//       action: "register-success",
+//       ip: req.ip,
+//       userAgent: req.get("User-Agent"),
+//     });
 
-    res.status(200).json({ message: `OTP sent to your ${otpMethod}` });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to register user" });
+//     res.status(200).json({ message: `OTP sent to your ${otpMethod}` });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: "Failed to register user" });
+//   }
+// };
+
+export const register = async (req, res) => {
+  const { username, password, email, phone, otpMethod } = req.body;
+
+  const exists =
+    (await User.findOne({ username })) ||
+    (await PendingUser.findOne({ username }));
+
+  if (exists) {
+    return res.status(400).json({ message: "User already exists" });
   }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const otp = generateOTP();
+  const otpHash = await bcrypt.hash(otp, 10);
+
+  if (otpMethod === "email") await sendEmailOTP(email, otp);
+  else await sendSMSOTP(phone, otp);
+
+  await PendingUser.create({
+    username,
+    password: hashedPassword,
+    email,
+    phone,
+    isMfaActive: false,
+    otpHash,
+    otpExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
+    otpMethod,
+    isVerified: false,
+    passwordChangedAt: new Date(),
+    twoFactorSecret: null,
+  });
+
+  res.json({ message: `OTP sent via ${otpMethod}` });
 };
 
 // ------------------ LOGIN ------------------
@@ -158,7 +194,16 @@ export const verifyLoginOTP = async (req, res) => {
     user.otpExpiresAt = undefined;
     await user.save();
 
-    // Passport login
+    //MFA Enabled
+    if (user.isMfaActive) {
+      return res.status(200).json({
+        message: "OTP verified. MFA required.",
+        mfaRequired: true,
+        username: user.username,
+      });
+    }
+
+    // Passport login - no MFA
     req.login(user, async (err) => {
       if (err) {
         return res.status(500).json({ message: "Login failed" });
@@ -174,7 +219,7 @@ export const verifyLoginOTP = async (req, res) => {
         details: { method: "OTP" },
       });
 
-      // ONLY send response here inside the callback
+      // Succesfull
       res.status(200).json({
         message: "Login successful",
         username: user.username,
@@ -189,32 +234,82 @@ export const verifyLoginOTP = async (req, res) => {
   }
 };
 
+export const verifyLoginMFA = async (req, res) => {
+  const { username, token } = req.body;
+
+  const user = await User.findOne({ username });
+  
+  if (!user || !user.isMfaActive) {
+    return res.status(400).json({ message: "MFA not enabled" });
+  }
+
+  const verified = speakeasy.totp.verify({
+    secret: user.twoFactorSecret,
+    encoding: "base32",
+    token: String(token),
+    window: 2,
+  });
+
+  if (!verified) {
+    return res.status(400).json({ message: "Invalid MFA code" });
+  }
+
+  req.login(user, async (err) => {
+    if (err) return res.status(500).json({ message: "Login failed" });
+
+    await createLog({
+      userId: user._id,
+      username: user.username,
+      action: "login-success",
+      details: { mfa: true },
+      ip: req.ip,
+      userAgent: req.get("User-Agent"),
+    });
+
+    res.status(200).json({ message: "Login successful" });
+  });
+};
+
+
 // ------------------ REGISTRATION OTP VERIFY ------------------
 export const verifyRegistrationOTP = async (req, res) => {
-  try {
-    const { username, otp } = req.body;
-    const user = await User.findOne({ username });
-    if (!user) return res.status(400).json({ message: "User not found" });
+  const { username, otp } = req.body;
 
-    if (user.isVerified)
-      return res.status(400).json({ message: "User already verified" });
-    if (user.otpExpiresAt < new Date())
-      return res.status(400).json({ message: "OTP expired" });
-
-    const isValid = await bcrypt.compare(otp, user.otpHash);
-    if (!isValid) return res.status(400).json({ message: "Invalid OTP" });
-
-    user.isVerified = true;
-    user.otpHash = undefined;
-    user.otpExpiresAt = undefined;
-    await user.save();
-
-    res.status(200).json({ message: "User verified successfully.. Please Login" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to verify OTP" });
+  const pending = await PendingUser.findOne({ username });
+  if (!pending) {
+    return res.status(400).json({ message: "No pending registration found" });
   }
+
+  if (pending.otpExpiresAt < new Date()) {
+    return res.status(400).json({ message: "OTP expired" });
+  }
+
+  const valid = await bcrypt.compare(otp, pending.otpHash);
+  if (!valid) {
+    return res.status(400).json({ message: "Invalid OTP" });
+  }
+
+  // Create real user
+  await User.create({
+    username: pending.username,
+    password: pending.password,
+    email: pending.email,
+    phone: pending.phone,
+    otpMethod:pending.otpMethod,
+    isVerified: true,
+    isMfaActive: false,
+    otpHash:undefined,
+    otpExpiresAt: undefined,
+    passwordChangedAt: new Date(),
+    twoFactorSecret: null,
+  });
+
+  // Cleanup
+  await PendingUser.deleteOne({ username });
+
+  res.json({ message: "Registration successful. Please login." });
 };
+
 
 export const authStatus = async (req, res) => {
   if (req.user) {

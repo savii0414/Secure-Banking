@@ -52,7 +52,7 @@ export const setup2FA = async () => {
 export const verify2FA = async (token) => {
   return await api.post(
     "/auth/2fa/verify",
-    {token},
+    { token },
     {
       withCredentials: true,
     },
@@ -62,7 +62,7 @@ export const verify2FA = async (token) => {
 export const reset2FA = async (token) => {
   return await api.post(
     "/auth/2fa/reset",
-    { token },  
+    { token },
     {
       withCredentials: true,
     },
@@ -70,11 +70,19 @@ export const reset2FA = async (token) => {
 };
 
 export const verifyLoginOTP = async (username, otp) => {
-  return await api.post("/auth/login/verify-otp", {
-    username,
-    otp,
-  },
- { withCredentials: true });
+  return await api.post(
+    "/auth/login/verify-otp",
+    { username, otp },
+    { withCredentials: true },
+  );
+};
+
+export const verifyLoginMFA = async (username, token) => {
+  return await api.post(
+    "/auth/mfa/login/verify",
+    { username, token },
+    { withCredentials: true },
+  );
 };
 
 export const verifyRegistrationOTP = async (username, otp) => {
