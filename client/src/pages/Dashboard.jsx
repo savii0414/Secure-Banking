@@ -13,7 +13,7 @@ const Dashboard = () => {
       try {
         const { data } = await authStatus(); // fetch logged-in user
         setCurrentUser(data);
-      } catch (error) {
+      } catch {
         toast.error("Failed to fetch user info. Please login again.");
       }
     };

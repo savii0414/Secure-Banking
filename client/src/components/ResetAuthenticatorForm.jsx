@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { reset2FA, verify2FA } from "../service/authApi";
+import { reset2FA } from "../service/authApi";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
@@ -19,7 +19,7 @@ const ResetAuthenticatorForm = () => {
       await reset2FA(token);
       toast.success("MFA reset successfully. Please setup again.");
       navigate("/dashboard"); // redirect to setup MFA
-    } catch (error) {
+    } catch {
       toast.error("Invalid code. MFA not reset.");
     } finally {
       setLoading(false);
