@@ -1,6 +1,10 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState } from "react";
+
 const SessionContext = createContext();
+
 export const useSession = () => useContext(SessionContext);
+
 export const SessionProvider = ({ children }) => {
   const [IsLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
