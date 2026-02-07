@@ -10,7 +10,8 @@ import {
   forgotPassword,
   resetPassword,
   verifyLoginOTP,
-  verifyRegistrationOTP
+  verifyRegistrationOTP,
+  verifyLoginMFA
 } from "../controllers/authController.js";
 
 const router = Router();
@@ -22,27 +23,23 @@ const requireAuth = (req, res, next) => {
 
 // Registration
 router.post("/register", register);
-
-// Registration OTP verification
 router.post("/register/verify-otp", verifyRegistrationOTP);
 
-// Login (generates login OTP)
+// Login
 router.post("/login", login);
-
-// Login OTP verification
 router.post("/login/verify-otp", verifyLoginOTP);
 
 //Status
 router.get("/status", authStatus);
 
+//MFA
 router.post("/2fa/setup", requireAuth, setup2FA);
 router.post("/2fa/verify", requireAuth, verify2FA);
 router.post("/2fa/reset", requireAuth, reset2FA);
+router.post("/mfa/login/verify", verifyLoginMFA);
 
-//forgot-password-request
+//password-request
 router.post("/forgot-password", forgotPassword);
-
-//reset-password
 router.post("/reset-password/:token", resetPassword);
 
 //Logout

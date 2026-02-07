@@ -67,7 +67,7 @@ const LoginForm = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+    <div className="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen flex items-center justify-center">
       <form
         onSubmit={isRegister ? handleRegister : handleLogin}
         className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl px-16 py-12"
@@ -208,7 +208,15 @@ const LoginForm = ({ onLoginSuccess }) => {
             {isRegister ? "Login" : "Create Account"}
           </button>
         </p>
+
       </form>
+
+      {/* Background floating shapes */}
+      <div className="absolute top-0 right-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute -top-20 -right-40 w-80 h-80 bg-blue-300 rounded-3xl transform rotate-12 opacity-30"></div>
+        <div className="absolute top-40 right-20 w-64 h-64 bg-pink-300 rounded-3xl transform -rotate-12 opacity-30"></div>
+      </div>
+
     </div>
   );
 };

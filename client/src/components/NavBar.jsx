@@ -19,7 +19,7 @@ const Navbar = ({ user }) => {
 
   return (
     <nav className="bg-white shadow px-8 py-4 flex justify-between items-center">
-      <h1 className="text-xl font-semibold">Ceylon Trust</h1>
+      <h1 className="text-xl font-semibold">💳 Ceylon Trust</h1>
 
       <div className="relative">
         <button
@@ -48,6 +48,14 @@ const Navbar = ({ user }) => {
               🔐 Setup MFA
             </button>
             )}
+
+            <button
+              onClick={() => navigate("/")}
+              className="block w-full text-left px-4 py-3 hover:bg-gray-100"
+            >
+              🔐 Change Password
+            </button>
+
 
             <button
               onClick={handleLogout}
