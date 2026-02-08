@@ -26,6 +26,9 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
+// Explicitly handle preflight 
+app.options("*", cors({ origin: process.env.ALLOWED_ORIGIN, credentials: true, }));
+
 // -----------------------------
 // Body Parsing
 // -----------------------------
