@@ -41,6 +41,11 @@ app.use(passport.session());
 //Routes
 app.use("/api/auth", authRoutes);
 
+// Health check / default route
+app.get("/", (res) => {
+  res.send("Secure Banking Backend is running!");
+});
+
 //Listen App
 const PORT = process.env.PORT || 7002;
 app.listen(PORT, () => {
