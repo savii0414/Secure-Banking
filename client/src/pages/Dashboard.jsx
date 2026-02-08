@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/NavBar.jsx";
 import BalanceCards from "../components/BalanceCards";
 import Transactions from "../components/Transactions";
 import { authStatus } from "../service/authApi";
