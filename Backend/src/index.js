@@ -43,7 +43,7 @@ app.use(passport.session());
 app.use("/api/auth", authRoutes);
 
 //Listen App
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 7002;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
