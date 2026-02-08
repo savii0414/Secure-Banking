@@ -10,24 +10,35 @@ import MongoStore from "connect-mongo";
 
 dotenv.config();
 
+// -----------------------------
+// Database Connection
+// -----------------------------
 dbConnect();
 
 const app = express();
-
 const PORT = process.env.PORT || 7002;
 
 // -----------------------------
 // CORS Middleware
 // -----------------------------
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGIN, // single origin from .env
+  origin: process.env.ALLOWED_ORIGIN, // e.g. https://secure-banking-murex.vercel.app
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
-// Explicitly handle preflight 
-app.options("*", cors({ origin: process.env.ALLOWED_ORIGIN, credentials: true, }));
+// Explicitly ensure preflight requests get headers
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", process.env.ALLOWED_ORIGIN);
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 // -----------------------------
 // Body Parsing
@@ -68,6 +79,9 @@ app.get("/", (req, res) => {
   res.status(200).send("Secure Banking Backend is running!");
 });
 
+// -----------------------------
+// Start Server
+// -----------------------------
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running`);
 });
