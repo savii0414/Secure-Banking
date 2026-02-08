@@ -17,6 +17,7 @@ dbConnect();
 
 const app = express();
 const PORT = process.env.PORT || 7002;
+const NODE_ENV = process.env.NODE_ENV || "development";
 
 // -----------------------------
 // CORS Middleware
@@ -59,8 +60,9 @@ app.use(session({
   }),
   cookie: {
     maxAge: 1000 * 60 * 60 * 24, // 1 day
-    sameSite: "none",            // required for cross‑site cookies
-    secure: true,                // required since both domains are HTTPS
+    sameSite: NODE_ENV === "production" ? "none" : "lax", // cross-site cookies for prod
+    secure: NODE_ENV === "production", // HTTPS only in prod
+    httpOnly: true,
   },
 }));
 
