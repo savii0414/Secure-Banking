@@ -354,7 +354,8 @@ export const logout = (req, res) => {
       res.clearCookie("connect.sid", {
         path: "/",
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "none",
+        secure: true,
       });
 
       return res.status(200).json({ message: "Logout successful" });
