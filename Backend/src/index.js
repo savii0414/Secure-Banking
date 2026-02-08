@@ -9,6 +9,10 @@ import "./config/passportConfig.js";
 import MongoStore from "connect-mongo";
 
 dotenv.config();
+
+// -----------------------------
+// Database Connection
+// -----------------------------
 dbConnect();
 
 const app = express();
@@ -29,11 +33,12 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 // -----------------------------
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin) return callback(null, true); // allow server-to-server or Postman
+    // Allow server-to-server requests or tools like Postman
+    if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) {
-      callback(null, true);
+      return callback(null, true);
     } else {
-      callback(new Error(`CORS Error: Origin ${origin} not allowed`));
+      return callback(new Error(`CORS Error: Origin ${origin} not allowed`));
     }
   },
   credentials: true,
@@ -41,14 +46,20 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
-// Preflight support for all routes
-app.options("*", cors({
-  origin: allowedOrigins,
-  credentials: true,
-}));
+// Preflight handler for all routes
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    res.header("Access-Control-Allow-Origin", allowedOrigins.join(","));
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.header("Access-Control-Allow-Credentials", "true");
+    return res.sendStatus(204); // No content
+  }
+  next();
+});
 
 // -----------------------------
-// Body parsing
+// Body Parsing
 // -----------------------------
 app.use(express.json({ limit: "100mb" }));
 app.use(express.urlencoded({ limit: "100mb", extended: true }));
@@ -66,11 +77,14 @@ app.use(session({
   }),
   cookie: {
     maxAge: 1000 * 60 * 60 * 24, // 1 day
-    sameSite: NODE_ENV === "production" ? "none" : "lax",
-    secure: NODE_ENV === "production",
+    sameSite: NODE_ENV === "production" ? "none" : "lax", // cross-origin cookies in production
+    secure: NODE_ENV === "production", // HTTPS required in production
   },
 }));
 
+// -----------------------------
+// Passport
+// -----------------------------
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -79,7 +93,7 @@ app.use(passport.session());
 // -----------------------------
 app.use("/api/auth", authRoutes);
 
-// Health check route
+// Health check / default route
 app.get("/", (req, res) => {
   res.status(200).send("Secure Banking Backend is running!");
 });
@@ -88,5 +102,5 @@ app.get("/", (req, res) => {
 // Start Server
 // -----------------------------
 app.listen(PORT, () => {
-  console.log(`Server is running`);
+  console.log(`Server running`);
 });
