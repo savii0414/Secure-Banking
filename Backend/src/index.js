@@ -25,38 +25,27 @@ const NODE_ENV = process.env.NODE_ENV || "development";
 
 // ALLOWED_ORIGINS in .env: comma-separated list
 const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(",")
+  ? process.env.ALLOWED_ORIGINS.split(",").map(origin => origin.trim())
   : [];
 
 // -----------------------------
-// CORS Middleware
+// CORS Middleware (clean)
 // -----------------------------
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow server-to-server requests or tools like Postman
+    // allow Postman / server-to-server requests
     if (!origin) return callback(null, true);
+
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
-    } else {
-      return callback(new Error(`CORS Error: Origin ${origin} not allowed`));
-    }
+    } 
+
+    return callback(new Error(`CORS Error: Origin ${origin} not allowed`));
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
-
-// Preflight handler for all routes
-app.use((req, res, next) => {
-  if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Origin", allowedOrigins.join(","));
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    res.header("Access-Control-Allow-Credentials", "true");
-    return res.sendStatus(204); // No content
-  }
-  next();
-});
 
 // -----------------------------
 // Body Parsing
@@ -77,7 +66,7 @@ app.use(session({
   }),
   cookie: {
     maxAge: 1000 * 60 * 60 * 24, // 1 day
-    sameSite: NODE_ENV === "production" ? "none" : "lax", // cross-origin cookies in production
+    sameSite: NODE_ENV === "production" ? "none" : "lax",
     secure: NODE_ENV === "production", // HTTPS required in production
   },
 }));
@@ -93,7 +82,7 @@ app.use(passport.session());
 // -----------------------------
 app.use("/api/auth", authRoutes);
 
-// Health check / default route
+// Health check
 app.get("/", (req, res) => {
   res.status(200).send("Secure Banking Backend is running!");
 });
@@ -102,5 +91,5 @@ app.get("/", (req, res) => {
 // Start Server
 // -----------------------------
 app.listen(PORT, () => {
-  console.log(`Server running`);
+  console.log(`Server is running`);
 });
