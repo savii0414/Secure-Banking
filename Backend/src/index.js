@@ -10,38 +10,17 @@ import MongoStore from "connect-mongo";
 
 dotenv.config();
 
-// -----------------------------
-// Database Connection
-// -----------------------------
 dbConnect();
 
 const app = express();
 
-// -----------------------------
-// Environment Variables
-// -----------------------------
 const PORT = process.env.PORT || 7002;
-const NODE_ENV = process.env.NODE_ENV || "development";
-
-// ALLOWED_ORIGINS in .env: comma-separated list
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(",").map(origin => origin.trim())
-  : [];
 
 // -----------------------------
-// CORS Middleware (clean)
+// CORS Middleware
 // -----------------------------
 app.use(cors({
-  origin: (origin, callback) => {
-    // allow Postman / server-to-server requests
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    } 
-
-    return callback(new Error(`CORS Error: Origin ${origin} not allowed`));
-  },
+  origin: process.env.ALLOWED_ORIGIN, // single origin from .env
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -66,8 +45,8 @@ app.use(session({
   }),
   cookie: {
     maxAge: 1000 * 60 * 60 * 24, // 1 day
-    sameSite: NODE_ENV === "production" ? "none" : "lax",
-    secure: NODE_ENV === "production", // HTTPS required in production
+    sameSite: "none",            // required for cross‑site cookies
+    secure: true,                // required since both domains are HTTPS
   },
 }));
 
@@ -82,14 +61,10 @@ app.use(passport.session());
 // -----------------------------
 app.use("/api/auth", authRoutes);
 
-// Health check
 app.get("/", (req, res) => {
   res.status(200).send("Secure Banking Backend is running!");
 });
 
-// -----------------------------
-// Start Server
-// -----------------------------
 app.listen(PORT, () => {
-  console.log(`Server is running`);
+  console.log(`Server is running on port ${PORT}`);
 });
