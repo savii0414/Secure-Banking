@@ -4,8 +4,9 @@ import passport from "passport";
 import dotenv from "dotenv";
 import cors from "cors";
 import dbConnect from "./config/dbConnect.js";
-import authRoutes from  "./routes/authRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 import "./config/passportConfig.js";
+import MongoStore from "connect-mongo";
 
 dotenv.config();
 dbConnect();
@@ -24,16 +25,14 @@ app.use(express.json({ limit: "100mb" }));
 app.use(express.urlencoded({ limit: "100mb", extended: true }));
 app.use(
   session({
-    name: "connect.sid",
-    secret: process.env.SESSION_SECRET || "SECRETTTTSESSIIIONNN",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: {
-      maxAge: 1000 * 60 * 60, // 1 hour
-      httpOnly: true,
-      sameSite: "lax",       // REQUIRED for cross-origin
-      secure: false,         // true ONLY in https (prod)
-    },
+    store: MongoStore.create({
+      mongoUrl: process.env.CONNECTION_STRING,
+      collectionName: "sessions",
+    }),
+    cookie: { maxAge: 1000 * 60 * 60 * 24 }, // 1 day
   }),
 );
 app.use(passport.initialize());
@@ -45,5 +44,5 @@ app.use("/api/auth", authRoutes);
 //Listen App
 const PORT = process.env.PORT || 7002;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running`);
 });

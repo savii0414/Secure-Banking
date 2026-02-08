@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 const VerifyOtpForm = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const username = state?.username;
   const otpMethod = state?.otpMethod;
@@ -43,6 +44,7 @@ const VerifyOtpForm = () => {
 
   const handleVerify = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const otp = otpDigits.join("");
     if (otp.length !== 6) {
       toast.error("Please enter all 6 digits of the OTP");
@@ -86,9 +88,14 @@ const VerifyOtpForm = () => {
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-3 rounded-xl hover:bg-blue-600 transition"
+          disabled={loading}
+          className={`w-full py-3 rounded-xl text-white ${
+            loading
+              ? "bg-blue-300 cursor-not-allowed"
+              : "bg-blue-500 hover:bg-blue-600"
+          }`}
         >
-          Verify OTP
+          {loading ? "Verifying..." : "Verify OTP"}
         </button>
       </form>
     </div>

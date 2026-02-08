@@ -8,6 +8,7 @@ const VerifyLoginOtpForm = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const { login } = useSession();
+  const [loading, setLoading] = useState(false);
 
   const username = state?.username;
   const otpMethod = state?.otpMethod;
@@ -46,6 +47,7 @@ const VerifyLoginOtpForm = () => {
 
   const handleVerify = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const otp = otpDigits.join("");
     if (otp.length !== 6) {
       toast.error("Please enter all 6 digits of the OTP");
@@ -87,6 +89,7 @@ const VerifyLoginOtpForm = () => {
               type="text"
               value={digit}
               onChange={(e) => handleChange(e, index)}
+              disabled={loading}
               onKeyDown={(e) => handleKeyDown(e, index)}
               ref={(el) => (inputsRef.current[index] = el)}
               className="w-12 h-12 text-center border rounded-lg text-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -97,9 +100,14 @@ const VerifyLoginOtpForm = () => {
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-3 rounded-xl hover:bg-blue-600 transition"
+          disabled={loading}
+          className={`w-full py-3 rounded-xl text-white ${
+            loading
+              ? "bg-blue-300 cursor-not-allowed"
+              : "bg-blue-500 hover:bg-blue-600"
+          }`}
         >
-          Verify OTP
+          {loading ? "Verifying..." : "Verify OTP"}
         </button>
       </form>
     </div>
