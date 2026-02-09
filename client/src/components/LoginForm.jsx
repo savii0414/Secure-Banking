@@ -31,7 +31,9 @@ const LoginForm = ({ onLoginSuccess }) => {
       setPassword("");
     } catch (error) {
       toast.error(error.response?.data?.message || "Invalid Login Credentials");
-    }
+    } finally {
+    setLoading(false); // <- ALWAYS reset loading
+  }
   };
 
   const handleRegister = async (e) => {
@@ -66,7 +68,10 @@ const LoginForm = ({ onLoginSuccess }) => {
         error.response?.data?.message ||
           "Something went wrong during registration",
       );
-    }
+      setPassword("");
+    } finally {
+    setLoading(false); // <- ALWAYS reset loading
+  }
   };
 
   return (

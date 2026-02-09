@@ -51,6 +51,9 @@ const VerifyLoginOtpForm = () => {
     const otp = otpDigits.join("");
     if (otp.length !== 6) {
       toast.error("Please enter all 6 digits of the OTP");
+      setOtpDigits(new Array(6).fill("")); // clear inputs
+      inputsRef.current[0]?.focus(); // focus first input
+      setLoading(false);
       return;
     }
 
@@ -68,6 +71,7 @@ const VerifyLoginOtpForm = () => {
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "OTP verification failed");
+      setLoading(false);
     }
   };
 
