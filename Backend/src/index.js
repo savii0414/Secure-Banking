@@ -23,23 +23,11 @@ const NODE_ENV = process.env.NODE_ENV || "development";
 // CORS Middleware
 // -----------------------------
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGIN, // e.g. https://secure-banking-murex.vercel.app
+  origin: process.env.CLIENT_URL,
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
-
-// Explicitly ensure preflight requests get headers
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", process.env.ALLOWED_ORIGIN);
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-  next();
-});
 
 // -----------------------------
 // Body Parsing
