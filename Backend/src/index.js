@@ -29,10 +29,18 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
+
 // -----------------------------
 // Body Parsing
 // -----------------------------
 app.use(express.json({ limit: "100mb" }));
+
+// Security headers middleware
+app.use((req, res, next) => {
+  res.setHeader('X-Frame-Options', 'DENY'); // prevents clickjacking
+  next();
+});
+
 app.use(express.urlencoded({ limit: "100mb", extended: true }));
 
 app.set("trust proxy", 1);
