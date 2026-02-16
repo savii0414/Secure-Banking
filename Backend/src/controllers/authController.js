@@ -478,7 +478,7 @@ export const forgotPassword = async (req, res) => {
       expiresIn: "15m",
     });
 
-    const resetLink = `${process.env.ALLOWED_ORIGINS}/reset-password/${resetToken}`;
+    const resetLink = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
     // Send password reset email using service
     await sendPasswordResetEmail(user.email, resetLink, user.username);
